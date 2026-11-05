@@ -77,7 +77,7 @@ Right-click any tab to switch between modes:
 | **Icon + Name (Active Only)** | Icon + name + pill | Icon only |
 | **Icon Only** | Icon + pill | Icon only |
 
-Default is **Icon + Name (All)****.** The **Show Workspace Number** option in the same right-click menu toggles the workspace identifier shown before each tab. It is enabled by default and displays the exact workspace name configured in AeroSpace.
+**Icon + Name (All)** is the default. The **Show Workspace Number** option in the same right-click menu toggles the workspace identifier shown before each tab. It is enabled by default and displays the exact workspace name configured in AeroSpace (so numeric workspaces show numbers, and letter-named workspaces show their letters).
 
 ## How It Works
 
