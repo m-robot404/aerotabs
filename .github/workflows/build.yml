@@ -1,0 +1,50 @@
+name: Build AeroTabs
+
+on:
+  push:
+    branches:
+      - feature/workspace-number-display
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Select Swift toolchain
+        run: swift --version
+
+      - name: Run tests
+        run: swift test
+
+      - name: Build release
+        run: swift build -c release
+
+      - name: Package AeroTabs.app
+        shell: bash
+        run: |
+          APP="AeroTabs.app"
+          BIN_DIR="$(swift build -c release --show-bin-path)"
+          mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+          cp "$BIN_DIR/AeroTabs" "$APP/Contents/MacOS/AeroTabs"
+          cp Sources/AeroTabs/Info.plist "$APP/Contents/Info.plist"
+          cp Sources/AeroTabs/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleExecutable AeroTabs" "$APP/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" "$APP/Contents/Info.plist" || true
+          ditto -c -k --sequesterRsrc --keepParent "$APP" AeroTabs-macos.zip
+
+      - name: Upload app bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: AeroTabs-macos
+          path: AeroTabs-macos.zip
+          if-no-files-found: error
+          retention-days: 14

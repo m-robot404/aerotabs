@@ -49,4 +49,11 @@ struct AeroSpaceClientParsingTests {
         let focusedId = AeroSpaceClient.parseFocusedWindowId("")
         #expect(focusedId == nil)
     }
+
+    @Test("parses focused workspace name")
+    func parseFocusedWorkspaceName() {
+        #expect(AeroSpaceClient.parseFocusedWorkspaceName("3\n") == "3")
+        #expect(AeroSpaceClient.parseFocusedWorkspaceName("  A  \n") == "A")
+        #expect(AeroSpaceClient.parseFocusedWorkspaceName("") == nil)
+    }
 }

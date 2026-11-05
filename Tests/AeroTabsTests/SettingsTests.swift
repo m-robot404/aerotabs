@@ -21,6 +21,22 @@ struct SettingsTests {
         #expect(settings2.displayMode == .iconOnly)
     }
 
+    @Test("workspace number display is enabled by default")
+    func defaultWorkspaceNumberDisplay() {
+        let defaults = UserDefaults(suiteName: "test-\(UUID().uuidString)")!
+        let settings = Settings(defaults: defaults)
+        #expect(settings.showWorkspaceNumber)
+    }
+
+    @Test("persists workspace number display preference")
+    func persistWorkspaceNumberDisplay() {
+        let defaults = UserDefaults(suiteName: "test-\(UUID().uuidString)")!
+        let settings = Settings(defaults: defaults)
+        settings.showWorkspaceNumber = false
+        let settings2 = Settings(defaults: defaults)
+        #expect(settings2.showWorkspaceNumber == false)
+    }
+
     @Test("display mode has correct labels")
     func displayModeLabels() {
         #expect(DisplayMode.iconAndNameAll.label == "Icon + Name (All)")
