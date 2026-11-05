@@ -28,6 +28,11 @@ struct AeroSpaceClient {
         return trimmed.isEmpty ? nil : trimmed
     }
 
+    static func parseFocusedWorkspaceName(_ output: String) -> String? {
+        let trimmed = output.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
     static func fetchWorkspaceWindows() -> [WindowInfo] {
         let output = shell(
             aerospacePath,
@@ -44,6 +49,15 @@ struct AeroSpaceClient {
             "--format", "%{window-id}"
         )
         return parseFocusedWindowId(output)
+    }
+
+    static func fetchFocusedWorkspaceName() -> String? {
+        let output = shell(
+            aerospacePath,
+            "list-workspaces", "--focused",
+            "--format", "%{workspace}"
+        )
+        return parseFocusedWorkspaceName(output)
     }
 
     static func focusWindow(id: String) {
