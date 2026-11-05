@@ -5,6 +5,7 @@ struct TabEntry {
     let icon: NSImage
     let isActive: Bool
     let showLabel: Bool
+    let workspaceNumber: String?
     var frame: NSRect = .zero
 }
 
@@ -29,6 +30,14 @@ class TabStripView: NSView {
         invalidateIntrinsicContentSize()
     }
 
+    private func workspaceNumberWidth(for entry: TabEntry) -> CGFloat {
+        guard let number = entry.workspaceNumber else { return 0 }
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 10, weight: .semibold)
+        ]
+        return (number as NSString).size(withAttributes: attributes).width
+    }
+
     private func layoutEntries(_ entries: [TabEntry]) -> [TabEntry] {
         var result = entries
         let height: CGFloat = bounds.height > 0 ? bounds.height : 22
@@ -36,24 +45,31 @@ class TabStripView: NSView {
 
         for i in result.indices {
             let entry = result[i]
+            let workspaceWidth = workspaceNumberWidth(for: entry)
+            let workspaceSpacing: CGFloat = workspaceWidth > 0 ? TabStripView.labelSpacing : 0
 
             if entry.showLabel {
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: NSFont.systemFont(ofSize: 12, weight: entry.isActive ? .semibold : .regular)
                 ]
                 let labelSize = (entry.window.appName as NSString).size(withAttributes: attrs)
-                let width = TabStripView.labelPadding + TabStripView.iconSize + TabStripView.labelSpacing + labelSize.width + TabStripView.labelPadding
+                let width = TabStripView.labelPadding
+                    + workspaceWidth + workspaceSpacing
+                    + TabStripView.iconSize + TabStripView.labelSpacing
+                    + labelSize.width + TabStripView.labelPadding
                 result[i].frame = NSRect(x: x, y: 0, width: width, height: height)
                 x += width + TabStripView.spacing
             } else {
-                // Icon-only: square frame
-                let size = height
-                result[i].frame = NSRect(x: x, y: 0, width: size, height: height)
-                x += size + TabStripView.spacing
+                // Keep icon-only tabs compact while reserving room for the workspace label.
+                let leadingWidth = workspaceWidth > 0
+                    ? TabStripView.labelPadding + workspaceWidth + workspaceSpacing
+                    : 0
+                let width = leadingWidth + height
+                result[i].frame = NSRect(x: x, y: 0, width: width, height: height)
+                x += width + TabStripView.spacing
             }
         }
 
-        // Remove trailing spacing
         if !result.isEmpty {
             x -= TabStripView.spacing
         }
@@ -71,7 +87,6 @@ class TabStripView: NSView {
         super.draw(dirtyRect)
 
         for entry in entries {
-            // Draw pill background for active tab
             if entry.isActive {
                 TabStripView.pillColor.setFill()
                 let pillHeight = TabStripView.iconSize + 4
@@ -81,18 +96,34 @@ class TabStripView: NSView {
                 path.fill()
             }
 
-            // Draw icon — centered in frame for icon-only, left-aligned for label mode
+            let workspaceWidth = workspaceNumberWidth(for: entry)
+            let workspaceSpacing: CGFloat = workspaceWidth > 0 ? TabStripView.labelSpacing : 0
+            if let number = entry.workspaceNumber {
+                let attrs: [NSAttributedString.Key: Any] = [
+                    .font: NSFont.systemFont(ofSize: 10, weight: .semibold),
+                    .foregroundColor: entry.isActive ? NSColor.white : NSColor(white: 1.0, alpha: 0.65),
+                ]
+                let numberSize = (number as NSString).size(withAttributes: attrs)
+                let numberY = (entry.frame.height - numberSize.height) / 2
+                (number as NSString).draw(
+                    at: NSPoint(x: entry.frame.minX + TabStripView.labelPadding, y: numberY),
+                    withAttributes: attrs
+                )
+            }
+
             let iconY = (entry.frame.height - TabStripView.iconSize) / 2
             let iconX: CGFloat
             if entry.showLabel {
-                iconX = entry.frame.minX + TabStripView.labelPadding
+                iconX = entry.frame.minX + TabStripView.labelPadding + workspaceWidth + workspaceSpacing
+            } else if workspaceWidth > 0 {
+                let leadingWidth = TabStripView.labelPadding + workspaceWidth + workspaceSpacing
+                iconX = entry.frame.minX + leadingWidth + (entry.frame.width - leadingWidth - TabStripView.iconSize) / 2
             } else {
                 iconX = entry.frame.minX + (entry.frame.width - TabStripView.iconSize) / 2
             }
             let iconRect = NSRect(x: iconX, y: iconY, width: TabStripView.iconSize, height: TabStripView.iconSize)
             entry.icon.draw(in: iconRect)
 
-            // Draw label
             if entry.showLabel {
                 let weight: NSFont.Weight = entry.isActive ? .semibold : .regular
                 let color: NSColor = entry.isActive ? .white : NSColor(white: 1.0, alpha: 0.7)
