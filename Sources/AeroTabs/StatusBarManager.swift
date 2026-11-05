@@ -12,6 +12,7 @@ class StatusBarManager {
     private let tabStrip = TabStripView(frame: .zero)
     private var windows: [WindowInfo] = []
     private var focusedId: String?
+    private var focusedWorkspaceName: String?
     private let settings: Settings
     private var contextMenu: ContextMenu?
 
@@ -23,7 +24,7 @@ class StatusBarManager {
             self?.refreshDisplay()
         }
 
-        tabStrip.onLeftClick = { [weak self] window in
+        tabStrip.onLeftClick = { window in
             AeroSpaceClient.focusWindow(id: window.windowId)
         }
         tabStrip.onRightClick = { [weak self] point in
@@ -55,6 +56,7 @@ class StatusBarManager {
     func refresh() {
         windows = AeroSpaceClient.fetchWorkspaceWindows()
         focusedId = AeroSpaceClient.fetchFocusedWindowId()
+        focusedWorkspaceName = AeroSpaceClient.fetchFocusedWorkspaceName()
         updateDisplay()
     }
 
@@ -75,13 +77,15 @@ class StatusBarManager {
             return true
         }
 
+        let workspaceNumber = settings.showWorkspaceNumber ? focusedWorkspaceName : nil
         let entries = deduped.map { window in
             let isActive = window.windowId == focusedId
             return TabEntry(
                 window: window,
                 icon: appIcon(for: window.bundleId),
                 isActive: isActive,
-                showLabel: settings.displayMode.showLabel(isActive: isActive)
+                showLabel: settings.displayMode.showLabel(isActive: isActive),
+                workspaceNumber: workspaceNumber
             )
         }
 
