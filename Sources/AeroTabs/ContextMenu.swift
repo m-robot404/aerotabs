@@ -26,6 +26,15 @@ class ContextMenu {
         displayModeItem.submenu = displaySubmenu
         menu.addItem(displayModeItem)
 
+        let workspaceNumberItem = NSMenuItem(
+            title: "Show Workspace Number",
+            action: #selector(toggleWorkspaceNumber(_:)),
+            keyEquivalent: ""
+        )
+        workspaceNumberItem.target = self
+        workspaceNumberItem.state = settings.showWorkspaceNumber ? .on : .off
+        menu.addItem(workspaceNumberItem)
+
         menu.addItem(.separator())
 
         let launchItem = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin(_:)), keyEquivalent: "")
@@ -46,6 +55,11 @@ class ContextMenu {
         guard let rawValue = sender.representedObject as? String,
               let mode = DisplayMode(rawValue: rawValue) else { return }
         settings.displayMode = mode
+        onDisplayModeChanged()
+    }
+
+    @objc private func toggleWorkspaceNumber(_ sender: NSMenuItem) {
+        settings.showWorkspaceNumber.toggle()
         onDisplayModeChanged()
     }
 
