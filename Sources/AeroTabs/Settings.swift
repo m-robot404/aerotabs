@@ -25,6 +25,7 @@ enum DisplayMode: String, CaseIterable {
 class Settings {
     private let defaults: UserDefaults
     private static let displayModeKey = "displayMode"
+    private static let showWorkspaceNumberKey = "showWorkspaceNumber"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -40,6 +41,18 @@ class Settings {
         }
         set {
             defaults.set(newValue.rawValue, forKey: Settings.displayModeKey)
+        }
+    }
+
+    var showWorkspaceNumber: Bool {
+        get {
+            guard defaults.object(forKey: Settings.showWorkspaceNumberKey) != nil else {
+                return true
+            }
+            return defaults.bool(forKey: Settings.showWorkspaceNumberKey)
+        }
+        set {
+            defaults.set(newValue, forKey: Settings.showWorkspaceNumberKey)
         }
     }
 }
