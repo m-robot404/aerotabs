@@ -17,10 +17,11 @@
 ## Features
 
 - Shows each window on your focused workspace as a tab with its app icon
+- Optionally shows the focused workspace name/number on each tab
 - Click a tab to focus that window
 - Active window highlighted with a pill background
 - Three display modes: **Icon + Name (All)**, **Icon + Name (Active Only)**, **Icon Only**
-- Right-click for settings (display mode, launch at login, quit)
+- Right-click for settings (display mode, workspace number visibility, launch at login, quit)
 - Event-driven updates via AeroSpace hooks — no polling, instant response
 - Lightweight native Swift app — no Electron, no runtime dependencies
 
@@ -76,7 +77,7 @@ Right-click any tab to switch between modes:
 | **Icon + Name (Active Only)** | Icon + name + pill | Icon only |
 | **Icon Only** | Icon + pill | Icon only |
 
-Default is **Icon + Name (All)**.
+Default is **Icon + Name (All)****.** The **Show Workspace Number** option in the same right-click menu toggles the workspace identifier shown before each tab. It is enabled by default and displays the exact workspace name configured in AeroSpace.
 
 ## How It Works
 
